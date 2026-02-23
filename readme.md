@@ -30,12 +30,13 @@ To run this project locally, you don't need any complex build tools or dependenc
 
    ```
 
-2. ```bash
+2. **Navigate into the project folder**
+  ```bash
    cd dicee-game
 
    ```
 
-3. **Open the game:**
+4. **Open the game:**
    Simply double-click the index.html file to open it in your default web browser, or use an extension like VS Code's "Live Server".
 
 ## 📁 Project Structure

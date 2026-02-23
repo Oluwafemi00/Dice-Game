@@ -31,7 +31,7 @@ To run this project locally, you don't need any complex build tools or dependenc
    ```
 
 2. **Navigate into the project folder**
-  ```bash
+   ```bash
    cd dicee-game
 
    ```

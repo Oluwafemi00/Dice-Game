@@ -40,8 +40,7 @@ To run this project locally, you don't need any complex build tools or dependenc
 
 ## 📁 Project Structure
 
-📦 dicee-game
-
+```📦 dicee-game
 ┣ 📂 images
 ┃ ┣ 📜 dice1.png
 ┃ ┣ 📜 dice2.png
@@ -54,7 +53,7 @@ To run this project locally, you don't need any complex build tools or dependenc
 ┣ 📜 index.html
 ┣ 📜 styles.css
 ┗ 📜 index.js
-
+````
 ## 🧠 What I Learned
 
 This project was a great exercise in refactoring and cleaning up code. Key takeaways include:

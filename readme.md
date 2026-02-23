@@ -41,6 +41,7 @@ To run this project locally, you don't need any complex build tools or dependenc
 ## 📁 Project Structure
 
 📦 dicee-game
+
 ┣ 📂 images
 ┃ ┣ 📜 dice1.png
 ┃ ┣ 📜 dice2.png
@@ -66,5 +67,5 @@ This project was a great exercise in refactoring and cleaning up code. Key takea
 
 - Audio API: Instantiating and playing audio objects directly via JavaScript without cluttering the HTML.
 
-**🤝 Contributing**
+## 🤝 Contributing
 Contributions, issues, and feature requests are welcome!

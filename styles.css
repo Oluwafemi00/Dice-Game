@@ -1,57 +1,117 @@
+body {
+  background-color: #393e46;
+  margin: 0;
+}
+
 .container {
   width: 70%;
   margin: auto;
   text-align: center;
 }
 
-.dice {
-  text-align: center;
-  display: inline-block;
-
-}
-
-body {
-  background-color: #393E46;
-}
-
 h1 {
   margin: 30px;
-  font-family: 'Lobster', cursive;
+  font-family: "Lobster", cursive;
   text-shadow: 5px 0 #232931;
   font-size: 8rem;
-  color: #4ECCA3;
+  color: #4ecca3;
 }
 
 p {
   font-size: 2rem;
-  color: #4ECCA3;
-  font-family: 'Indie Flower', cursive;
+  color: #4ecca3;
+  font-family: "Indie Flower", cursive;
 }
 
-img {
+.dice {
+  text-align: center;
+  display: inline-block;
+  margin: 0 20px; /* Added slight margin so they don't touch on small screens */
+}
+
+/* Scoped the image to ONLY effect dice images */
+.dice img {
   width: 80%;
+  max-width: 250px;
+}
+
+button {
+  font-family: "Indie Flower", cursive;
+  border-radius: 1rem;
+  font-weight: 900;
+  color: #4ecca3;
+  background-color: bisque;
+  border: none;
+  padding: 15px 40px;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: transform 0.2s; /* Smooth animation setup */
+}
+
+/* Added a hover effect for better UX */
+button:hover {
+  transform: scale(1.05);
 }
 
 footer {
   margin-top: 5%;
-  color: #EEEEEE;
+  color: #eeeeee;
   text-align: center;
-  font-family: 'Indie Flower', cursive;
-
+  font-family: "Indie Flower", cursive;
 }
 
+/* The Shake Animation */
+@keyframes shake-anim {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
 
-.btn{
+.shake-dice {
+  animation: shake-anim 0.5s;
+}
+.score-board {
+  font-family: "Indie Flower", cursive;
+  font-size: 2.5rem;
+  color: #eeeeee;
+  margin-bottom: 30px;
   display: flex;
   justify-content: center;
+  gap: 20px;
 }
-button{
-  font-family: 'Indie Flower', cursive;
-  border-radius: 1rem;
-  font-weight: 900;
-  color: #4ECCA3;
-  background-color:bisque;
-  border: 0;
-  font-size: 2rem;
-  cursor: pointer;
+
+.divider {
+  color: #4ecca3;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+/* Specific style for the Reset button */
+.btn-reset {
+  background-color: #ff7675;
+  color: #2d3436;
+  font-size: 1.5rem;
+  padding: 10px 30px;
+}
+
+.btn-reset:hover {
+  background-color: #d63031;
+  color: white;
 }

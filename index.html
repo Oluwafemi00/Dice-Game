@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
-    <title>Dicee</title>
+    <title>Dicee Game</title>
     <link rel="stylesheet" href="styles.css" />
     <link
       href="https://fonts.googleapis.com/css?family=Indie+Flower|Lobster"
@@ -10,23 +10,35 @@
     />
   </head>
   <body>
-    <div class="container">
+    <main class="container">
       <h1>Refresh Me</h1>
+
+      <div class="score-board">
+        <span id="player-score">Player: 0</span>
+        <span class="divider">|</span>
+        <span id="computer-score">Computer: 0</span>
+      </div>
 
       <div class="dice">
         <p>Your Dice</p>
-        <img class="img1" src="images/dice6.png" />
+        <img class="img1" src="images/dice6.png" alt="Player's Dice" />
       </div>
 
       <div class="dice">
         <p>Computer's Dice</p>
-        <img class="img2" src="images/dice6.png" />
+        <img class="img2" src="images/dice6.png" alt="Computer's Dice" />
       </div>
-    </div>
-    <div class="container">
-    <button>Press to play</button>
-    </div>
-    <footer>&COPY;Dicee</footer>
+
+      <
+      <div class="button-wrapper">
+        <button class="btn-roll">Roll Dice</button>
+
+        <button class="btn-reset">Reset</button>
+      </div>
+    </main>
+
+    <footer>&copy; Dicee</footer>
+
     <script src="index.js" charset="utf-8"></script>
   </body>
 </html>

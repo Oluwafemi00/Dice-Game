@@ -1,44 +1,906 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>Dicee Game</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dicee — Premium Dice Game</title>
     <link
-      href="https://fonts.googleapis.com/css?family=Indie+Flower|Lobster"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
+    <style>
+      /* ===== RESET ===== */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ===== VARIABLES ===== */
+      :root {
+        --felt: #0a1f12;
+        --felt2: #0d2618;
+        --felt3: #112e1e;
+        --gold: #c9a84c;
+        --gold2: #e8c870;
+        --gold3: #f5dc90;
+        --gold-dim: #1e1608;
+        --gold-glow: rgba(201, 168, 76, 0.2);
+        --cream: #f5efe0;
+        --text: #f0e8d0;
+        --text2: #8a9a80;
+        --text3: #4a5a42;
+        --border: rgba(201, 168, 76, 0.15);
+        --border2: rgba(201, 168, 76, 0.3);
+        --win: #4db87a;
+        --lose: #d45a5a;
+        --draw: #c9a84c;
+        --radius: 20px;
+      }
+
+      /* ===== BASE ===== */
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        font-weight: 300;
+        background: var(--felt);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* ===== FELT TEXTURE ===== */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.012) 0px,
+            rgba(255, 255, 255, 0.012) 1px,
+            transparent 1px,
+            transparent 8px
+          ),
+          repeating-linear-gradient(
+            -45deg,
+            rgba(255, 255, 255, 0.012) 0px,
+            rgba(255, 255, 255, 0.012) 1px,
+            transparent 1px,
+            transparent 8px
+          );
+      }
+
+      /* ===== GLOW ===== */
+      body::after {
+        content: "";
+        position: fixed;
+        top: -150px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 900px;
+        height: 500px;
+        background: radial-gradient(
+          ellipse,
+          rgba(201, 168, 76, 0.06) 0%,
+          transparent 65%
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ===== SHELL ===== */
+      .shell {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 20px 48px;
+        gap: 28px;
+      }
+
+      /* ===== HEADER ===== */
+      .header {
+        text-align: center;
+      }
+      .header-eyebrow {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--text3);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+      .eyebrow-line {
+        width: 48px;
+        height: 1px;
+        background: var(--text3);
+      }
+      .header-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(56px, 10vw, 100px);
+        font-weight: 700;
+        line-height: 0.9;
+        letter-spacing: -2px;
+        color: var(--gold2);
+        text-shadow:
+          0 0 40px var(--gold-glow),
+          0 2px 0 rgba(0, 0, 0, 0.5);
+        margin-bottom: 4px;
+      }
+      .header-title em {
+        font-style: italic;
+        color: var(--cream);
+        font-weight: 400;
+      }
+      .header-sub {
+        font-size: 12px;
+        color: var(--text3);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      /* ===== STATUS ===== */
+      .status-panel {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        padding: 12px 32px;
+        min-width: 260px;
+        text-align: center;
+        transition: all 0.35s;
+      }
+      .status-text {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        font-weight: 400;
+        font-style: italic;
+        color: var(--text);
+        transition: color 0.35s;
+      }
+      .status-panel.win .status-text {
+        color: var(--win);
+      }
+      .status-panel.lose .status-text {
+        color: var(--lose);
+      }
+      .status-panel.draw .status-text {
+        color: var(--draw);
+      }
+
+      /* ===== SCORE BOARD ===== */
+      .scoreboard {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius);
+        overflow: hidden;
+        min-width: 320px;
+      }
+      .score-side {
+        flex: 1;
+        padding: 16px 28px;
+        text-align: center;
+        position: relative;
+      }
+      .score-side:first-child {
+        border-right: 1px solid var(--border);
+      }
+      .score-role {
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--text3);
+        margin-bottom: 6px;
+      }
+      .score-num {
+        font-family: "Playfair Display", serif;
+        font-size: 42px;
+        font-weight: 700;
+        color: var(--gold2);
+        line-height: 1;
+        transition: all 0.3s;
+      }
+      .score-num.pop {
+        animation: scorePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes scorePop {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.3);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .score-streak {
+        font-size: 10px;
+        color: var(--text3);
+        margin-top: 3px;
+        min-height: 14px;
+        letter-spacing: 0.04em;
+      }
+      .score-streak.active {
+        color: var(--gold);
+      }
+
+      /* ===== ARENA ===== */
+      .arena {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(24px, 6vw, 80px);
+      }
+
+      /* ===== DICE WRAPPER ===== */
+      .dice-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      .dice-label {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--text3);
+      }
+
+      /* ===== 3D DICE ===== */
+      .dice-scene {
+        width: 100px;
+        height: 100px;
+        perspective: 400px;
+      }
+      .dice-3d {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transform: rotateX(0deg) rotateY(0deg);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .dice-3d.rolling {
+        animation: diceRoll3D 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes diceRoll3D {
+        0% {
+          transform: rotateX(0deg) rotateY(0deg);
+        }
+        25% {
+          transform: rotateX(180deg) rotateY(90deg);
+        }
+        75% {
+          transform: rotateX(360deg) rotateY(270deg);
+        }
+        100% {
+          transform: rotateX(720deg) rotateY(360deg);
+        }
+      }
+
+      .dice-face {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      /* The SVG dice face */
+      .dice-svg {
+        width: 96px;
+        height: 96px;
+        filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.6));
+      }
+
+      /* ===== VS BADGE ===== */
+      .vs-badge {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        font-style: italic;
+        color: var(--text3);
+        user-select: none;
+      }
+
+      /* ===== ROLL RESULT BADGE ===== */
+      .roll-badge {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 4px;
+        min-height: 24px;
+        min-width: 60px;
+        text-align: center;
+      }
+      .roll-badge.player-won {
+        background: rgba(77, 184, 122, 0.15);
+        border: 1px solid rgba(77, 184, 122, 0.3);
+        color: var(--win);
+      }
+      .roll-badge.computer-won {
+        background: rgba(212, 90, 90, 0.15);
+        border: 1px solid rgba(212, 90, 90, 0.3);
+        color: var(--lose);
+      }
+      .roll-badge.tied {
+        background: rgba(201, 168, 76, 0.12);
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        color: var(--draw);
+      }
+      .roll-badge.empty {
+        border: 1px solid var(--border);
+        color: transparent;
+      }
+
+      /* ===== BUTTONS ===== */
+      .btn-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 52px;
+        padding: 0 32px;
+        border-radius: var(--radius);
+        border: none;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: all 0.18s;
+        position: relative;
+        overflow: hidden;
+      }
+      .btn-roll {
+        background: var(--gold);
+        color: #0a1f12;
+        min-width: 180px;
+        box-shadow:
+          0 4px 0 rgba(0, 0, 0, 0.4),
+          0 8px 24px rgba(201, 168, 76, 0.2);
+      }
+      .btn-roll:hover {
+        background: var(--gold2);
+        box-shadow:
+          0 4px 0 rgba(0, 0, 0, 0.4),
+          0 12px 32px rgba(201, 168, 76, 0.35);
+      }
+      .btn-roll:active {
+        transform: translateY(3px);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+      }
+      .btn-roll:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-roll svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+      }
+
+      .btn-reset {
+        background: transparent;
+        border: 1px solid var(--border2);
+        color: var(--text2);
+        height: 52px;
+        padding: 0 24px;
+      }
+      .btn-reset:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        border-color: rgba(201, 168, 76, 0.4);
+      }
+
+      /* ===== HISTORY ===== */
+      .history-strip {
+        display: flex;
+        gap: 6px;
+        min-height: 28px;
+        align-items: center;
+      }
+      .hist-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--text3);
+        transition: all 0.3s;
+      }
+      .hist-dot.w {
+        background: var(--win);
+        box-shadow: 0 0 6px rgba(77, 184, 122, 0.4);
+      }
+      .hist-dot.l {
+        background: var(--lose);
+        box-shadow: 0 0 6px rgba(212, 90, 90, 0.4);
+      }
+      .hist-dot.d {
+        background: var(--draw);
+        box-shadow: 0 0 6px rgba(201, 168, 76, 0.3);
+      }
+
+      /* ===== FOOTER ===== */
+      .footer {
+        font-size: 11px;
+        color: var(--text3);
+        letter-spacing: 0.1em;
+        text-align: center;
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 480px) {
+        .dice-scene {
+          width: 80px;
+          height: 80px;
+        }
+        .dice-svg {
+          width: 76px;
+          height: 76px;
+        }
+        .arena {
+          gap: 20px;
+        }
+        .scoreboard {
+          min-width: 0;
+          width: 100%;
+          max-width: 300px;
+        }
+        .score-num {
+          font-size: 32px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main class="container">
-      <h1>Refresh Me</h1>
-
-      <div class="score-board">
-        <span id="player-score">Player: 0</span>
-        <span class="divider">|</span>
-        <span id="computer-score">Computer: 0</span>
+    <div class="shell">
+      <!-- HEADER -->
+      <div class="header">
+        <div class="header-eyebrow">
+          <span class="eyebrow-line"></span>
+          Casino Game
+          <span class="eyebrow-line"></span>
+        </div>
+        <h1 class="header-title"><em>Dice</em>e</h1>
+        <p class="header-sub">Roll to win · First to 10 takes the crown</p>
       </div>
 
-      <div class="dice">
-        <p>Your Dice</p>
-        <img class="img1" src="images/dice6.png" alt="Player's Dice" />
+      <!-- STATUS -->
+      <div class="status-panel" id="statusPanel">
+        <span class="status-text" id="statusText">Roll the dice to begin</span>
       </div>
 
-      <div class="dice">
-        <p>Computer's Dice</p>
-        <img class="img2" src="images/dice6.png" alt="Computer's Dice" />
+      <!-- SCOREBOARD -->
+      <div class="scoreboard">
+        <div class="score-side">
+          <div class="score-role">You</div>
+          <div class="score-num" id="playerScore">0</div>
+          <div class="score-streak" id="playerStreak"></div>
+        </div>
+        <div class="score-side">
+          <div class="score-role">Computer</div>
+          <div class="score-num" id="computerScore">0</div>
+          <div class="score-streak" id="computerStreak"></div>
+        </div>
       </div>
 
-      <
-      <div class="button-wrapper">
-        <button class="btn-roll">Roll Dice</button>
+      <!-- ARENA -->
+      <div class="arena">
+        <!-- PLAYER DICE -->
+        <div class="dice-wrapper">
+          <span class="dice-label">Your Roll</span>
+          <div class="dice-scene">
+            <div class="dice-3d" id="playerDice">
+              <div class="dice-face">
+                <svg class="dice-svg" id="playerSvg" viewBox="0 0 96 96"></svg>
+              </div>
+            </div>
+          </div>
+          <div class="roll-badge empty" id="playerBadge">&nbsp;</div>
+        </div>
 
-        <button class="btn-reset">Reset</button>
+        <div class="vs-badge">vs</div>
+
+        <!-- COMPUTER DICE -->
+        <div class="dice-wrapper">
+          <span class="dice-label">Computer</span>
+          <div class="dice-scene">
+            <div class="dice-3d" id="computerDice">
+              <div class="dice-face">
+                <svg
+                  class="dice-svg"
+                  id="computerSvg"
+                  viewBox="0 0 96 96"
+                ></svg>
+              </div>
+            </div>
+          </div>
+          <div class="roll-badge empty" id="computerBadge">&nbsp;</div>
+        </div>
       </div>
-    </main>
 
-    <footer>&copy; Dicee</footer>
+      <!-- BUTTONS -->
+      <div class="btn-row">
+        <button class="btn btn-roll" id="rollBtn">
+          <svg viewBox="0 0 24 24">
+            <rect x="2" y="2" width="20" height="20" rx="4" />
+            <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+            <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+            <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+            <circle cx="8" cy="16" r="1.5" fill="currentColor" />
+          </svg>
+          Roll Dice
+        </button>
+        <button class="btn btn-reset" id="resetBtn">Reset</button>
+      </div>
 
-    <script src="index.js" charset="utf-8"></script>
+      <!-- HISTORY -->
+      <div class="history-strip" id="historyStrip"></div>
+
+      <div class="footer">© Dicee · Premium Edition</div>
+    </div>
+
+    <script>
+      // ─── AUDIO ENGINE ────────────────────────────────────────────
+      const AC = new (window.AudioContext || window.webkitAudioContext)();
+
+      function playRoll() {
+        // Multiple short noise bursts = dice rattle
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => {
+            const buf = AC.createBuffer(1, AC.sampleRate * 0.04, AC.sampleRate);
+            const d = buf.getChannelData(0);
+            for (let j = 0; j < d.length; j++)
+              d[j] = (Math.random() * 2 - 1) * 0.3;
+            const src = AC.createBufferSource();
+            src.buffer = buf;
+            const f = AC.createBiquadFilter();
+            f.type = "bandpass";
+            f.frequency.value = 600 + Math.random() * 400;
+            const g = AC.createGain();
+            src.connect(f);
+            f.connect(g);
+            g.connect(AC.destination);
+            g.gain.setValueAtTime(0.4, AC.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.06);
+            src.start();
+            src.stop(AC.currentTime + 0.06);
+          }, i * 120);
+        }
+      }
+
+      function playWin() {
+        [523, 659, 784].forEach((hz, i) => {
+          setTimeout(() => {
+            const osc = AC.createOscillator();
+            const g = AC.createGain();
+            osc.connect(g);
+            g.connect(AC.destination);
+            osc.type = "sine";
+            osc.frequency.value = hz;
+            g.gain.setValueAtTime(0.15, AC.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.25);
+            osc.start();
+            osc.stop(AC.currentTime + 0.25);
+          }, i * 110);
+        });
+      }
+
+      function playLose() {
+        [392, 330, 261].forEach((hz, i) => {
+          setTimeout(() => {
+            const osc = AC.createOscillator();
+            const g = AC.createGain();
+            osc.connect(g);
+            g.connect(AC.destination);
+            osc.type = "sawtooth";
+            osc.frequency.value = hz;
+            g.gain.setValueAtTime(0.1, AC.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.3);
+            osc.start();
+            osc.stop(AC.currentTime + 0.3);
+          }, i * 100);
+        });
+      }
+
+      // ─── SVG DICE FACES ──────────────────────────────────────────
+      function getDiceSVGContent(n, won) {
+        const bg =
+          won === "w" ? "#1A3528" : won === "l" ? "#2E1515" : "#1A1E10";
+        const border =
+          won === "w" ? "#4DB87A" : won === "l" ? "#D45A5A" : "#C9A84C";
+        const dot =
+          won === "w" ? "#4DB87A" : won === "l" ? "#E88080" : "#F0E8D0";
+
+        const dotPositions = {
+          1: [[48, 48]],
+          2: [
+            [28, 28],
+            [68, 68],
+          ],
+          3: [
+            [28, 28],
+            [48, 48],
+            [68, 68],
+          ],
+          4: [
+            [28, 28],
+            [68, 28],
+            [28, 68],
+            [68, 68],
+          ],
+          5: [
+            [28, 28],
+            [68, 28],
+            [48, 48],
+            [28, 68],
+            [68, 68],
+          ],
+          6: [
+            [28, 22],
+            [68, 22],
+            [28, 48],
+            [68, 48],
+            [28, 74],
+            [68, 74],
+          ],
+        };
+
+        const dots = (dotPositions[n] || [])
+          .map(
+            ([x, y]) =>
+              `<circle cx="${x}" cy="${y}" r="7" fill="${dot}" opacity="0.95"/>`,
+          )
+          .join("");
+
+        return `
+    <rect width="96" height="96" rx="18" fill="${bg}"/>
+    <rect x="1" y="1" width="94" height="94" rx="17" fill="none" stroke="${border}" stroke-width="1.5" opacity="0.6"/>
+    <rect x="4" y="4" width="88" height="88" rx="14" fill="rgba(255,255,255,0.02)"/>
+    ${dots}
+  `;
+      }
+
+      // ─── DOM ─────────────────────────────────────────────────────
+      const statusPanel = document.getElementById("statusPanel");
+      const statusText = document.getElementById("statusText");
+      const playerScoreEl = document.getElementById("playerScore");
+      const computerScoreEl = document.getElementById("computerScore");
+      const playerStreak = document.getElementById("playerStreak");
+      const computerStreak = document.getElementById("computerStreak");
+      const playerDice = document.getElementById("playerDice");
+      const computerDice = document.getElementById("computerDice");
+      const playerSvg = document.getElementById("playerSvg");
+      const computerSvg = document.getElementById("computerSvg");
+      const playerBadge = document.getElementById("playerBadge");
+      const computerBadge = document.getElementById("computerBadge");
+      const rollBtn = document.getElementById("rollBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const historyStrip = document.getElementById("historyStrip");
+
+      // ─── STATE ───────────────────────────────────────────────────
+      let playerScore = 0;
+      let computerScore = 0;
+      let playerStrk = 0;
+      let computerStrk = 0;
+      let history = [];
+      const WIN_TARGET = 10;
+      let gameOver = false;
+
+      // ─── INIT DICE ───────────────────────────────────────────────
+      playerSvg.innerHTML = getDiceSVGContent(6, "");
+      computerSvg.innerHTML = getDiceSVGContent(6, "");
+
+      // ─── ROLL ────────────────────────────────────────────────────
+      rollBtn.addEventListener("click", async () => {
+        if (gameOver) return;
+        if (AC.state === "suspended") AC.resume();
+
+        rollBtn.disabled = true;
+        playRoll();
+
+        // Animate both dice
+        playerDice.classList.remove("rolling");
+        computerDice.classList.remove("rolling");
+        void playerDice.offsetWidth;
+        playerDice.classList.add("rolling");
+        computerDice.classList.add("rolling");
+
+        statusPanel.className = "status-panel";
+        statusText.textContent = "Rolling…";
+        playerBadge.className = "roll-badge empty";
+        playerBadge.innerHTML = "&nbsp;";
+        computerBadge.className = "roll-badge empty";
+        computerBadge.innerHTML = "&nbsp;";
+
+        await delay(580);
+
+        playerDice.classList.remove("rolling");
+        computerDice.classList.remove("rolling");
+
+        const p = rand(1, 6),
+          c = rand(1, 6);
+        let outcome = "";
+
+        if (p > c) {
+          // Player wins
+          outcome = "w";
+          playerScore++;
+          playerStrk++;
+          computerStrk = 0;
+          statusPanel.className = "status-panel win";
+          statusText.textContent = "You Win! 🎉";
+          playerBadge.className = "roll-badge player-won";
+          playerBadge.textContent = "▲ WINS";
+          computerBadge.className = "roll-badge empty";
+          computerBadge.innerHTML = "&nbsp;";
+          animateScore(playerScoreEl, playerScore);
+          playWin();
+        } else if (c > p) {
+          // Computer wins
+          outcome = "l";
+          computerScore++;
+          computerStrk++;
+          playerStrk = 0;
+          statusPanel.className = "status-panel lose";
+          statusText.textContent = "Computer Wins 😤";
+          computerBadge.className = "roll-badge computer-won";
+          computerBadge.textContent = "▲ WINS";
+          playerBadge.className = "roll-badge empty";
+          playerBadge.innerHTML = "&nbsp;";
+          animateScore(computerScoreEl, computerScore);
+          playLose();
+        } else {
+          // Draw
+          outcome = "d";
+          playerStrk = 0;
+          computerStrk = 0;
+          statusPanel.className = "status-panel draw";
+          statusText.textContent = "It's a Draw! 🤝";
+          playerBadge.className = "roll-badge tied";
+          playerBadge.textContent = "DRAW";
+          computerBadge.className = "roll-badge tied";
+          computerBadge.textContent = "DRAW";
+        }
+
+        // Update dice faces with outcome colour
+        playerSvg.innerHTML = getDiceSVGContent(
+          p,
+          outcome === "w" ? "w" : outcome === "l" ? "l" : "d",
+        );
+        computerSvg.innerHTML = getDiceSVGContent(
+          c,
+          outcome === "l" ? "w" : outcome === "w" ? "l" : "d",
+        );
+
+        // Streaks
+        updateStreak(playerStreak, playerStrk, "You");
+        updateStreak(computerStreak, computerStrk, "CPU");
+
+        // History dot
+        history.push(outcome);
+        if (history.length > 15) history.shift();
+        renderHistory();
+
+        // Win condition
+        if (playerScore >= WIN_TARGET) {
+          statusText.textContent = "🏆 You won the game!";
+          statusPanel.className = "status-panel win";
+          gameOver = true;
+          rollBtn.disabled = true;
+          return;
+        }
+        if (computerScore >= WIN_TARGET) {
+          statusText.textContent = "Computer wins the game 😭";
+          statusPanel.className = "status-panel lose";
+          gameOver = true;
+          rollBtn.disabled = true;
+          return;
+        }
+
+        rollBtn.disabled = false;
+      });
+
+      // ─── RESET ───────────────────────────────────────────────────
+      resetBtn.addEventListener("click", () => {
+        playerScore = computerScore = playerStrk = computerStrk = 0;
+        gameOver = false;
+        history = [];
+
+        playerScoreEl.textContent = "0";
+        computerScoreEl.textContent = "0";
+        playerStreak.textContent = "";
+        playerStreak.className = "score-streak";
+        computerStreak.textContent = "";
+        computerStreak.className = "score-streak";
+
+        statusPanel.className = "status-panel";
+        statusText.textContent = "Roll the dice to begin";
+
+        playerSvg.innerHTML = getDiceSVGContent(6, "");
+        computerSvg.innerHTML = getDiceSVGContent(6, "");
+        playerBadge.className = "roll-badge empty";
+        playerBadge.innerHTML = "&nbsp;";
+        computerBadge.className = "roll-badge empty";
+        computerBadge.innerHTML = "&nbsp;";
+
+        historyStrip.innerHTML = "";
+        rollBtn.disabled = false;
+      });
+
+      // ─── HELPERS ─────────────────────────────────────────────────
+      function rand(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      function delay(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+
+      function animateScore(el, val) {
+        el.textContent = val;
+        el.classList.remove("pop");
+        void el.offsetWidth;
+        el.classList.add("pop");
+      }
+
+      function updateStreak(el, count, label) {
+        if (count >= 2) {
+          el.textContent = `${label} on a ${count}× streak! 🔥`;
+          el.classList.add("active");
+        } else {
+          el.textContent = "";
+          el.classList.remove("active");
+        }
+      }
+
+      function renderHistory() {
+        historyStrip.innerHTML = history
+          .map((h) => `<div class="hist-dot ${h}"></div>`)
+          .join("");
+      }
+
+      // Resume AudioContext on first touch
+      document.addEventListener(
+        "pointerdown",
+        () => {
+          if (AC.state === "suspended") AC.resume();
+        },
+        { once: true },
+      );
+    </script>
   </body>
 </html>
